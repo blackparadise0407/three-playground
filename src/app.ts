@@ -1,8 +1,9 @@
-import * as THREE from "three";
 import { GUI } from "dat.gui";
+import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { ModelLoader } from "./model-loader";
+
+import { Character } from "./character";
 import { ModelController } from "./model-controller";
 
 export class App {
@@ -13,6 +14,7 @@ export class App {
   private cameraOrbitControls!: OrbitControls;
   private directLight!: THREE.DirectionalLight;
   private ambientLight!: THREE.AmbientLight;
+  private character: Character;
   private modelController?: ModelController;
 
   constructor() {
@@ -20,17 +22,16 @@ export class App {
     this.camera = this.createCamera();
     this.renderer = this.createRenderer();
     this.initCameraOrbitControl();
-    const modelLoader = ModelLoader.getInstance();
-    modelLoader.load("/race-car.fbx", "/race-car.png").then((model) => {
-      model.scale.setScalar(0.001);
-      model.position.y = 0.4;
-      this.scene.add(model);
-      this.modelController = new ModelController(
-        model,
-        this.camera,
-        this.cameraOrbitControls
-      );
-      this.modelController.enableDevTool();
+
+    this.character = new Character({ scene: this.scene });
+    this.character.load().then((model) => {
+      if (model) {
+        this.modelController = new ModelController(
+          model,
+          this.camera,
+          this.cameraOrbitControls
+        );
+      }
     });
 
     document.body.appendChild(this.renderer.domElement);
@@ -51,8 +52,10 @@ export class App {
   public run(): void {
     const clock = new THREE.Clock();
     const animate = () => {
+      const delta = clock.getDelta();
+      this.character.update(delta);
       if (this.modelController) {
-        this.modelController.update(clock.getDelta());
+        this.modelController.update(delta);
       }
       requestAnimationFrame(animate);
       this.cameraOrbitControls.update();
@@ -76,7 +79,7 @@ export class App {
       0.1,
       1000
     );
-    camera.position.set(2, 0.7, 1.1);
+    camera.position.set(10, 5, 10);
     camera.lookAt(this.scene.position);
     return camera;
   }
@@ -157,7 +160,7 @@ export class App {
   private initDirectLight() {
     this.directLight = new THREE.DirectionalLight(0xffffff, 0.5);
     this.directLight.castShadow = true;
-    this.directLight.position.set(0, 1, 0);
+    this.directLight.position.set(5, 5, 0);
     this.directLight.target = this.plane;
     this.scene.add(this.directLight);
   }

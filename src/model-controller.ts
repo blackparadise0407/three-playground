@@ -73,10 +73,8 @@ export class ModelController {
       this.direction.normalize();
       this.direction.applyAxisAngle(this.rotateAngle, directionOffset);
 
-      const sprintMultiplier = this.keyMapping.sprint ? 1.2 : 1;
-
-      const moveX = this.direction.x * 10 * sprintMultiplier * delta;
-      const moveZ = this.direction.z * 10 * sprintMultiplier * delta;
+      const moveX = this.direction.x * 3 * delta;
+      const moveZ = this.direction.z * 3 * delta;
       this.model.position.x += moveX;
       this.model.position.z += moveZ;
       this.updateCameraTarget(moveX, moveZ);

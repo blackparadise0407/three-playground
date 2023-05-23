@@ -18,32 +18,28 @@ export class ModelLoader {
     this.textureLoader = new THREE.TextureLoader();
   }
 
-  public load(path: string, texturePath?: string) {
-    return new Promise<THREE.Group>((resolve, reject) => {
-      this.loader.load(
-        path,
-        async (fbx) => {
-          let texture: THREE.Texture;
-          if (texturePath) {
-            texture = await this.loadTexture(texturePath);
+  public async load(path: string, texturePath?: string) {
+    try {
+      const fbx = await this.loader.loadAsync(path);
+      let texture: THREE.Texture;
+      if (texturePath) {
+        texture = await this.loadTexture(texturePath);
+      }
+      fbx.traverse((child: any) => {
+        if (child.isMesh) {
+          if (texture) {
+            child.material.map = texture;
+            child.material.needsupdate = true;
           }
-          fbx.traverse((child: any) => {
-            if (child.isMesh) {
-              if (texture) {
-                child.material.map = texture;
-                child.material.needsupdate = true;
-              }
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
 
-          resolve(fbx);
-        },
-        undefined,
-        reject
-      );
-    });
+      return fbx;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private async loadTexture(path: string) {
