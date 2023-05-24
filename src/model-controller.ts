@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-interface KeyMapping {
+export interface KeyMapping {
   forward: boolean;
   backward: boolean;
   left: boolean;
@@ -10,7 +10,7 @@ interface KeyMapping {
 }
 
 export class ModelController {
-  private keyMapping: KeyMapping = {
+  public keyMapping: KeyMapping = {
     forward: false,
     backward: false,
     left: false,

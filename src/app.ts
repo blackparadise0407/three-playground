@@ -31,6 +31,7 @@ export class App {
           this.camera,
           this.cameraOrbitControls
         );
+        this.modelController.enableDevTool();
       }
     });
 
